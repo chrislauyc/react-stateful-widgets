@@ -45,21 +45,75 @@ export default function TicTacToe(){
 			}
 		}
 	}
-	function computeTree(attr){
-		if(!('playerMoves' in attr))){
-			attr.playerMoves = [];
-		}
-		if(!('computerMoves' in attr)){
-			attr.computerMoves = [];
-		}
-		let availableMoves = attr.grid.map((value,index)=>{value,index}).filter((o)=>o.value === 0);
-		availableMoves.reduce((acc,o)=>{
-			
-		},null);
+	const updateGrid = (grid, move)=>{
+		return grid.map((g,i)=>{
+			if(i===move){
+				if(isMyMove){
+					return 1;
+				}
+				else{
+					return -1;
+				}
+			}
+			else{
+				return g;
+			}
+		});
+	}
+	const buildNode = (grid,move,availableMoves,isMyMove)=>{
 		return{
-			index:0,
-			children:[]
+			value:move,
+			grid:updateGrid(grid, move),
+			availableMoves:availableMoves.filter((m)=>m!==move),
+			childNodes:[],
+			isMyMove: isMyMove,
+			numWins: 0,
+			numLosses: 0,
+			round:0
 		};
+	};
+	function computeTree(node){
+		//node contains:
+		//availableMoves, childNodes, isMyMove, numWins, numLosses
+		//check win conditions
+		const winner = checkWinner(grid);
+		if(winner===1){
+			node.numWins += 1;
+		}
+		else if(winner===-1){
+			node.numLosses += 1;
+		}
+		else{
+			//do nothing
+		}
+		// build childNodes
+		node.childNodes = node.availableMoves.map((move)=>buildNode(node.grid,move,availableMoves,!(node.isMyMove)));
+		//recursively compute tree on childNodes
+		node.childNodes = node.childNodes.map((child)=>computeTree(child));
+		//sort childNodes based on win/lose ratio
+		node.childNodes.sort((first,second)=>{
+			const firstR = first.numWins/first.numLosses;
+			const secondR = second.numWins/second.numLosses;
+			if(firstR > second R){
+				return 1;
+			}
+			else if(firstR < secondR){
+				return -1;
+			}
+			else{
+				return 0;
+			}
+		});
+		// sum all the wins and losses
+		node.childNodes.forEach((child)=>{
+			node.numWins += child.numWins;
+			node.numLosses += child.numLosses;
+		});
+		return node;
+	}
+	function getNextMove(node){
+		//pick the best node
+		return node.children[0];
 	}
 	function takeTurn(grid,index,value){
 		grid[index] = value;
